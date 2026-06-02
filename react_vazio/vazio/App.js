@@ -16,5 +16,13 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     alignItems: 'center',
     justifyContent: 'center',
+    textAling: 'center',
+  },
+  cont_texto: {
+    margintop: 50,
+    height: 500,
+    width: 300,
+    backgroudColor: "red",
+    alignSelf: 'center',
   },
 });
