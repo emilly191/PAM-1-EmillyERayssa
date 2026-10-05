@@ -112,7 +112,10 @@ export default function App() {
 
   const renderItemPersonagem = ({ item }) => (
     <View style={styles.cardItemRow}>
-      <Image source={{ uri: item.foto }} style={styles.avatar} />
+      <Image
+        source={typeof item.foto === 'string' ? { uri: item.foto } : item.foto}
+        style={styles.avatar}
+      />
       <View style={styles.infoCol}>
         <Text style={styles.itemTitulo}>{item.nome}</Text>
         <Text style={styles.itemTag}>{item.funcao}</Text>
