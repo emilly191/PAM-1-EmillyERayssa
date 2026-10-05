@@ -21,11 +21,10 @@ const RUNAS = [
 ];
 
 const PERSONAGENS = [
-  { id: '1', nome: 'Jace Herondale', funcao: 'Caçador de Sombras', arma: 'Lâmina Seráfica', foto: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=150' },
-  { id: '2', nome: 'Clary Fray', funcao: 'Caçadora de Sombras / Artista', arma: 'Poder de Criar Runas', foto: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150' },
-  { id: '3', nome: 'Alec Lightwood', funcao: 'Líder do Instituto', arma: 'Arco e Flecha', foto: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150' },
-  { id: '4', nome: 'Magnus Bane', funcao: 'Alto Feiticeiro de Brooklyn', arma: 'Magia de Feiticeiro', foto: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150' },
-   { id: '5', nome: 'Isabelle Lightwood', funcao: 'Alto Feiticeiro de Brooklyn', arma: 'Magia de Feiticeiro', foto: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150' },
+  { id: '1', nome: 'Jace Herondale', funcao: 'Caçador de Sombras', arma: 'Lâmina Seráfica', foto: require('./assets/jace.jpg') },
+  { id: '2', nome: 'Clary Fray', funcao: 'Caçadora de Sombras / Artista', arma: 'Poder de Criar Runas', foto: require('./assets/clary.jpg') },
+  { id: '3', nome: 'Alec Lightwood', funcao: 'Líder do Instituto', arma: 'Arco e Flecha', foto: require('./assets/alec.jpg') },
+  { id: '4', nome: 'Magnus Bane', funcao: 'Alto Feiticeiro de Brooklyn', arma: 'Magia de Feiticeiro', foto: require('./assets/magnus.jpg') },
 ];
 
 const INSTITUTOS = [
