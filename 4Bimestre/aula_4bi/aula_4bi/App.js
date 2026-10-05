@@ -1,575 +1,391 @@
-import React, { useState, Component } from 'react';
+import React, { useState } from 'react';
+import {
+  StyleSheet,
+  Text,
+  View,
+  TextInput,
+  TouchableOpacity,
+  FlatList,
+  Image,
+  Alert,
+  SafeAreaView,
+  StatusBar,
+} from 'react-native';
 
-// --- Error Boundary to prevent silent White Screens ---
-class ErrorBoundary extends Component {
-  constructor(props) {
-    super(props);
-    this.state = { hasError: false, error: null };
-  }
-
-  static getDerivedStateFromError(error) {
-    return { hasError: true, error };
-  }
-
-  componentDidCatch(error, errorInfo) {
-    console.error("Shadowhunter App Error:", error, errorInfo);
-  }
-
-  render() {
-    if (this.state.hasError) {
-      return (
-        <div style={{ padding: '20px', color: '#E74C3C', backgroundColor: '#0D0D0D', minHeight: '100vh', fontFamily: 'sans-serif' }}>
-          <h2>⚔️ Erro nos Arquivos do Instituto</h2>
-          <p>Ocorreu um problema de renderização. Tente recarregar a página.</p>
-          <pre style={{ background: '#161616', padding: '10px', borderRadius: '5px', color: '#aaa', fontSize: '12px' }}>
-            {this.state.error?.toString()}
-          </pre>
-        </div>
-      );
-    }
-    return this.props.children;
-  }
-}
-
-// --- DATA DEFINITIONS ---
-const RUNES_DATA = [
-  {
-    id: '1',
-    name: 'Runa Parabatai',
-    meaning: 'Une dois caçadores de sombras em um elo espiritual e de combate indissolúvel.',
-    type: 'Aliança',
-    icon: '⚔️',
-    color: '#D4AF37',
-    detail: 'Apenas dois guerreiros podem compartilhar esta marca para toda a vida. Aumenta os reflexos e a sincronia em batalha.'
-  },
-  {
-    id: '2',
-    name: 'Visão (Voyance)',
-    meaning: 'Permite enxergar através do Glamour e ver o Mundo das Sombras como ele realmente é.',
-    type: 'Percepção',
-    icon: '👁️',
-    color: '#2980B9',
-    detail: 'Uma das primeiras marcas recebidas por um Nephilim. Revela demônios, fadas e feitiços ocultos aos olhos mundanos.'
-  },
-  {
-    id: '3',
-    name: 'Cura (Iratze)',
-    meaning: 'Cura ferimentos físicos e elimina venenos de demônios no corpo do Caçador.',
-    type: 'Suporte',
-    icon: '✨',
-    color: '#27AE60',
-    detail: 'Desenhada diretamente sobre a pele com a estela. Age instantaneamente fechando cortes e estancando sangramentos.'
-  },
-  {
-    id: '4',
-    name: 'Força (Fortitude)',
-    meaning: 'Concede força física aumentada temporariamente para batalhas intensas.',
-    type: 'Combate',
-    icon: '🛡️',
-    color: '#E67E22',
-    detail: 'Aumenta consideravelmente a resistência muscular e a força de impacto em duelos de longa duração.'
-  },
-  {
-    id: '5',
-    name: 'Velocidade (Swiftness)',
-    meaning: 'Aumenta os reflexos e a velocidade de movimento do guerreiro.',
-    type: 'Combate',
-    icon: '⚡',
-    color: '#F1C40F',
-    detail: 'Concede agilidade extraordinária para esquivas rápidas e investidas letais contra demônios velozes.'
-  },
-  {
-    id: '6',
-    name: 'Silêncio (Soundless)',
-    meaning: 'Permite mover-se em silêncio absoluto, ideal para missões de furtividade.',
-    type: 'Furtividade',
-    icon: '🌙',
-    color: '#8E44AD',
-    detail: 'Abafa os passos e o ruído das armas do Nephilim, permitindo infiltrações imperceptíveis em territórios inimigos.'
-  }
+// --- DADOS DO APP (INSTITUTOS, RUNAS E PERSONAGENS) ---
+const RUNAS = [
+  { id: '1', nome: 'Runa do Anjo (Raziel)', tipo: 'Poder Angelical', desc: 'Concede força divina e purificação contra demônios.' },
+  { id: '2', nome: 'Iratze', tipo: 'Cura', desc: 'Runa básica de cura para fechar ferimentos de batalha.' },
+  { id: '3', nome: 'Parabatai', tipo: 'Vínculo', desc: 'Conecta a alma de dois Caçadores de Sombras parceiros de lutas.' },
+  { id: '4', nome: 'Furtividade', tipo: 'Camuflagem', desc: 'Permite ao caçador mover-se sem emitir ruídos.' },
 ];
 
-const CHARACTERS_DATA = [
-  {
-    id: '1',
-    name: 'Jace Herondale',
-    role: 'Caçador de Sombras',
-    institute: 'Instituto de Nova York',
-    weapon: 'Espada Seráfica / Gravis',
-    status: 'Ativo',
-    avatar: '🗡️',
-    quote: "Amar é destruir, e ser amado é ser destruído."
-  },
-  {
-    id: '2',
-    name: 'Clary Fray',
-    role: 'Caçadora de Sombras',
-    institute: 'Instituto de Nova York',
-    weapon: 'Estela / Hephaastis',
-    status: 'Ativo',
-    avatar: '🖌️',
-    quote: "Heróis nem sempre são aqueles que vencem, são aqueles que continuam lutando."
-  },
-  {
-    id: '3',
-    name: 'Alec Lightwood',
-    role: 'Inquisidor / Líder do Instituto',
-    institute: 'Instituto de Nova York',
-    weapon: 'Arco e Flechas de Madeira Bruxa',
-    status: 'Ativo',
-    avatar: '🏹',
-    quote: "Não há fingimento. Eu amo você e amarei até o dia em que eu morrer."
-  },
-  {
-    id: '4',
-    name: 'Isabelle Lightwood',
-    role: 'Caçadora de Sombras',
-    institute: 'Instituto de Nova York',
-    weapon: 'Chicote de Electrum Dourado',
-    status: 'Ativo',
-    avatar: '🐍',
-    quote: "Eu sou uma Lightwood. Nós não nos escondemos e não nos rendemos."
-  },
-  {
-    id: '5',
-    name: 'Magnus Bane',
-    role: 'Alto Feiticeiro',
-    institute: 'Brooklyn, NY',
-    weapon: 'Magia de Feiticeiro & Fogo Seráfico',
-    status: 'Aliado',
-    avatar: '🔮',
-    quote: "Vivi por séculos e amei muitos, mas você é o meu coração."
-  }
+const PERSONAGENS = [
+  { id: '1', nome: 'Jace Herondale', funcao: 'Caçador de Sombras', arma: 'Lâmina Seráfica', foto: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=150' },
+  { id: '2', nome: 'Clary Fray', funcao: 'Caçadora de Sombras / Artista', arma: 'Poder de Criar Runas', foto: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150' },
+  { id: '3', nome: 'Alec Lightwood', funcao: 'Líder do Instituto', arma: 'Arco e Flecha', foto: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150' },
+  { id: '4', nome: 'Magnus Bane', funcao: 'Alto Feiticeiro de Brooklyn', arma: 'Magia de Feiticeiro', foto: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150' },
+   { id: '5', nome: 'Isabelle Lightwood', funcao: 'Alto Feiticeiro de Brooklyn', arma: 'Magia de Feiticeiro', foto: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150' },
 ];
 
-const INSTITUTES_DATA = [
-  {
-    id: '1',
-    name: 'Instituto de Nova York',
-    location: 'Manhattan, Nova York, EUA',
-    head: 'Alec Lightwood',
-    description: 'Um dos maiores e mais ativos institutos do Nephilim nas Américas, disfarçado como uma igreja gótica secular para os mundanos.',
-    code: 'NY-01',
-    status: 'Sede Ativa'
-  },
-  {
-    id: '2',
-    name: 'Instituto de Londres',
-    location: 'Fleet Street, Londres, Reino Unido',
-    head: 'Conselho do Enclave',
-    description: 'Sede histórica com vasto acervo de tomos antigos, relíquias sagradas e uma rica biblioteca sobre a história dos Nephilim.',
-    code: 'LD-04',
-    status: 'Sede Histórica'
-  },
-  {
-    id: '3',
-    name: 'Instituto de Los Angeles',
-    location: 'Costa de Malibu, Califórnia, EUA',
-    head: 'Arthur Blackthorn',
-    description: 'Localizado no topo de uma colina com vista para o oceano Pacífico, responsável pela vigilância marítima e patrulhas costeiras.',
-    code: 'LA-02',
-    status: 'Vigilância Costeira'
-  },
-  {
-    id: '4',
-    name: 'Clave de Alicante (Gardt)',
-    location: 'Alicante, Idris',
-    head: 'Conselho Nephilim & Inquisidor',
-    description: 'A capital cobiçada do mundo dos Caçadores de Sombras. Protegida pelas Torres de Demônios que resplandecem sob o sol.',
-    code: 'ID-00',
-    status: 'Capital Celestial'
-  }
+const INSTITUTOS = [
+  { id: '1', nome: 'Instituto de Nova York', local: 'Manhattan, EUA', lider: 'Alec Lightwood' },
+  { id: '2', nome: 'Instituto de Londres', local: 'Londres, Reino Unido', lider: 'Família Blackthorn' },
+  { id: '3', nome: 'Alicante (Idris)', local: 'Pátria dos Caçadores', lider: 'A Clave' },
 ];
 
-function ShadowhuntersApp() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [user, setUser] = useState(null);
-  const [currentTab, setCurrentTab] = useState('runas');
+export default function App() {
+  // Estado para controle do Login
+  const [logado, setLogado] = useState(false);
+  const [usuario, setUsuario] = useState('');
+  const [senha, setSenha] = useState('');
 
-  // Login Form State
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [loginError, setLoginError] = useState('');
+  // Estado para navegação e busca
+  const [aba, setAba] = useState('runas'); // 'runas', 'personagens', 'institutos'
+  const [busca, setBusca] = useState('');
 
-  const handleLogin = (e) => {
-    if (e) e.preventDefault();
-    setLoginError('');
-
-    if (!email.trim() || !password.trim()) {
-      setLoginError('Por favor, preencha todos os campos.');
+  // Função para validar o Login
+  function realizarLogin() {
+    if (usuario.trim() === '' || senha.trim() === '') {
+      Alert.alert('Erro', 'Por favor, preencha o usuário e a senha!');
       return;
     }
-
-    if (password.length < 6) {
-      setLoginError('A senha deve ter pelo menos 6 caracteres.');
-      return;
+    // Aceita qualquer usuário para teste ou valida "shadowhunter"
+    if (senha === '1234' || senha === 'angelico') {
+      setLogado(true);
+    } else {
+      Alert.alert('Acesso Negado', 'Senha incorreta! Dica: use 1234');
     }
+  }
 
-    const userName = email.split('@')[0] || 'Caçador';
-    setUser({ name: userName.charAt(0).toUpperCase() + userName.slice(1), email });
-    setIsLoggedIn(true);
-    setEmail('');
-    setPassword('');
-  };
+  function realizarLogout() {
+    setLogado(false);
+    setUsuario('');
+    setSenha('');
+  }
 
-  const handleLogout = () => {
-    setIsLoggedIn(false);
-    setUser(null);
-    setCurrentTab('runas');
-  };
-
-  // --- LOGIN SCREEN ---
-  if (!isLoggedIn) {
+  // --- TELA DE LOGIN ---
+  if (!logado) {
     return (
-      <div className="min-h-screen bg-[#0D0D0D] text-white flex flex-col justify-between items-center p-4 sm:p-6 font-sans">
-        <div className="w-full max-w-md my-auto space-y-6">
-          
-          <div className="text-center space-y-3">
-            <div className="mx-auto w-20 h-20 rounded-full border-2 border-[#D4AF37] bg-[#161616] flex items-center justify-center shadow-[0_0_20px_rgba(212,175,55,0.3)]">
-              <span className="text-4xl">⚔️</span>
-            </div>
-            <div>
-              <h1 className="text-2xl sm:text-3xl font-serif font-bold tracking-widest text-[#D4AF37]">
-                SHADOWHUNTERS
-              </h1>
-              <p className="text-xs uppercase tracking-widest text-[#A0A0A0] mt-1">
-                Arquivos do Instituto Nephilim
-              </p>
-            </div>
-          </div>
+      <SafeAreaView style={styles.containerLogin}>
+        <StatusBar barStyle="light-content" />
+        <View style={styles.cardLogin}>
+          <Text style={styles.tituloHeader}>⚡ SHADOWHUNTERS ⚡</Text>
+          <Text style={styles.subtituloHeader}>Acervo do Instituto</Text>
 
-          <form onSubmit={handleLogin} className="bg-[#161616] border border-[#262626] rounded-xl p-6 sm:p-8 space-y-4 shadow-xl">
-            <div>
-              <label className="block text-xs font-bold text-[#D4AF37] tracking-wider uppercase mb-2">
-                ✉️ Identificação Nephilim
-              </label>
-              <input
-                type="email"
-                placeholder="seu.email@clave.org"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full bg-[#0D0D0D] border border-[#333333] rounded-lg px-4 py-3 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-[#D4AF37] transition-colors"
-              />
-            </div>
+          <View style={styles.formGroup}>
+            <Text style={styles.label}>Nephilim / Usuário:</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Digite seu nome..."
+              placeholderTextColor="#888"
+              value={usuario}
+              onChangeText={setUsuario}
+            />
 
-            <div>
-              <label className="block text-xs font-bold text-[#D4AF37] tracking-wider uppercase mb-2">
-                🔒 Senha de Acesso
-              </label>
-              <input
-                type="password"
-                placeholder="••••••••"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full bg-[#0D0D0D] border border-[#333333] rounded-lg px-4 py-3 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-[#D4AF37] transition-colors"
-              />
-            </div>
+            <Text style={styles.label}>Senha de Acesso:</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Sua senha (ex: 1234)..."
+              placeholderTextColor="#888"
+              secureTextEntry
+              value={senha}
+              onChangeText={setSenha}
+            />
 
-            {loginError && (
-              <div className="p-3 bg-[#C0392B]/10 border border-[#C0392B]/40 rounded-lg text-center">
-                <p className="text-xs text-[#E74C3C] font-medium">{loginError}</p>
-              </div>
-            )}
-
-            <button
-              type="submit"
-              className="w-full bg-[#D4AF37] hover:bg-[#c49f27] text-[#0D0D0D] font-bold py-3.5 px-4 rounded-lg text-xs uppercase tracking-wider transition-all duration-200 shadow-md hover:shadow-[0_0_15px_rgba(212,175,55,0.4)]"
-            >
-              Entrar no Sistema
-            </button>
-          </form>
-
-          <p className="text-center text-xs text-[#555555] font-serif italic">
-            "Sed Lex, Dura Lex" • Clave de Idris
-          </p>
-        </div>
-      </div>
+            <TouchableOpacity style={styles.botaoGold} onPress={realizarLogin}>
+              <Text style={styles.textoBotaoGold}>ENTRAR NO INSTITUTO</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </SafeAreaView>
     );
   }
 
-  return (
-    <div className="min-h-screen bg-[#0D0D0D] text-white flex flex-col font-sans">
-      
-      {/* Header */}
-      <header className="bg-[#121212] border-b border-[#222222] px-4 sm:px-6 py-4 sticky top-0 z-30 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-full border border-[#D4AF37] bg-[#181818] flex items-center justify-center text-lg">
-            ⚔️
-          </div>
-          <div>
-            <h1 className="text-sm sm:text-base font-bold font-serif text-[#D4AF37] tracking-wider">
-              ARQUIVOS NEPHILIM
-            </h1>
-            <p className="text-xs text-[#888888] flex items-center gap-1">
-              <span>Guerreiro:</span>
-              <span className="text-white font-medium">{user?.name}</span>
-            </p>
-          </div>
-        </div>
-
-        <button
-          onClick={handleLogout}
-          className="flex items-center gap-1 px-3 py-1.5 rounded-md border border-[#C0392B] text-[#C0392B] hover:bg-[#C0392B]/10 text-xs font-semibold transition-colors"
-        >
-          <span>🚪 Sair</span>
-        </button>
-      </header>
-
-      {/* Content Body */}
-      <main className="flex-1 max-w-4xl w-full mx-auto p-4 sm:p-6 pb-24">
-        {currentTab === 'runas' && <RunesTab />}
-        {currentTab === 'personagens' && <CharactersTab />}
-        {currentTab === 'institutos' && <InstitutesTab />}
-      </main>
-
-      {/* Navigation */}
-      <nav className="fixed bottom-0 left-0 right-0 bg-[#121212] border-t border-[#222222] px-4 py-2 z-30">
-        <div className="max-w-md mx-auto flex items-center justify-around">
-          
-          <button
-            onClick={() => setCurrentTab('runas')}
-            className={`flex flex-col items-center gap-1 py-1 px-4 rounded-lg transition-all ${
-              currentTab === 'runas' ? 'text-[#D4AF37]' : 'text-[#666666] hover:text-[#aaaaaa]'
-            }`}
-          >
-            <span className="text-lg">✨</span>
-            <span className="text-[11px] font-medium">Runas</span>
-          </button>
-
-          <button
-            onClick={() => setCurrentTab('personagens')}
-            className={`flex flex-col items-center gap-1 py-1 px-4 rounded-lg transition-all ${
-              currentTab === 'personagens' ? 'text-[#D4AF37]' : 'text-[#666666] hover:text-[#aaaaaa]'
-            }`}
-          >
-            <span className="text-lg">🗡️</span>
-            <span className="text-[11px] font-medium">Personagens</span>
-          </button>
-
-          <button
-            onClick={() => setCurrentTab('institutos')}
-            className={`flex flex-col items-center gap-1 py-1 px-4 rounded-lg transition-all ${
-              currentTab === 'institutos' ? 'text-[#D4AF37]' : 'text-[#666666] hover:text-[#aaaaaa]'
-            }`}
-          >
-            <span className="text-lg">🏛️</span>
-            <span className="text-[11px] font-medium">Institutos</span>
-          </button>
-
-        </div>
-      </nav>
-
-    </div>
-  );
-}
-
-function RunesTab() {
-  const [search, setSearch] = useState('');
-  const [activeRune, setActiveRune] = useState(null);
-
-  const filtered = RUNES_DATA.filter(rune =>
-    rune.name.toLowerCase().includes(search.toLowerCase()) ||
-    rune.type.toLowerCase().includes(search.toLowerCase()) ||
-    rune.meaning.toLowerCase().includes(search.toLowerCase())
+  // --- RENDERIZAÇÃO DAS LISTAS COM FLATLIST ---
+  const renderItemRuna = ({ item }) => (
+    <View style={styles.cardItem}>
+      <Text style={styles.itemTitulo}>{item.nome}</Text>
+      <Text style={styles.itemTag}>Tipo: {item.tipo}</Text>
+      <Text style={styles.itemDesc}>{item.desc}</Text>
+    </View>
   );
 
-  return (
-    <div className="space-y-4">
-      <div>
-        <h2 className="text-xl font-serif font-bold text-white mb-1">Compêndio de Runas (Marcas)</h2>
-        <p className="text-xs text-[#888888]">
-          Símbolos sagrados gravados na pele dos Nephilim com uma estela de adamas.
-        </p>
-      </div>
+  const renderItemPersonagem = ({ item }) => (
+    <View style={styles.cardItemRow}>
+      <Image source={{ uri: item.foto }} style={styles.avatar} />
+      <View style={styles.infoCol}>
+        <Text style={styles.itemTitulo}>{item.nome}</Text>
+        <Text style={styles.itemTag}>{item.funcao}</Text>
+        <Text style={styles.itemDesc}>Arma: {item.arma}</Text>
+      </View>
+    </View>
+  );
 
-      <div className="relative">
-        <input
-          type="text"
-          placeholder="🔍 Buscar runa por nome, tipo ou efeito..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="w-full bg-[#161616] border border-[#282828] rounded-xl px-4 py-2.5 text-xs text-white placeholder-[#666666] focus:outline-none focus:border-[#D4AF37] transition-colors"
+  const renderItemInstituto = ({ item }) => (
+    <View style={styles.cardItem}>
+      <Text style={styles.itemTitulo}>🏛️ {item.nome}</Text>
+      <Text style={styles.itemTag}>Local: {item.local}</Text>
+      <Text style={styles.itemDesc}>Líder / Responsável: {item.lider}</Text>
+    </View>
+  );
+
+  // Filtro de buscas
+  const runasFiltradas = RUNAS.filter(r => r.nome.toLowerCase().includes(busca.toLowerCase()));
+  const persFiltrados = PERSONAGENS.filter(p => p.nome.toLowerCase().includes(busca.toLowerCase()));
+  const instFiltrados = INSTITUTOS.filter(i => i.nome.toLowerCase().includes(busca.toLowerCase()));
+
+  return (
+    <SafeAreaView style={styles.containerApp}>
+      <StatusBar barStyle="light-content" />
+
+      {/* Cabeçalho */}
+      <View style={styles.topBar}>
+        <View>
+          <Text style={styles.topBarTitulo}>INSTITUTO</Text>
+          <Text style={styles.topBarUser}>Agente: {usuario}</Text>
+        </View>
+        <TouchableOpacity style={styles.botaoSair} onPress={realizarLogout}>
+          <Text style={styles.textoBotaoSair}>Sair</Text>
+        </TouchableOpacity>
+      </View>
+
+      {/* Campo de Busca */}
+      <View style={styles.searchContainer}>
+        <TextInput
+          style={styles.searchInput}
+          placeholder="Pesquisar no acervo..."
+          placeholderTextColor="#777"
+          value={busca}
+          onChangeText={setBusca}
         />
-      </div>
+      </View>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        {filtered.map((item) => (
-          <div
-            key={item.id}
-            onClick={() => setActiveRune(activeRune?.id === item.id ? null : item)}
-            className={`bg-[#161616] border rounded-xl p-4 transition-all duration-200 cursor-pointer ${
-              activeRune?.id === item.id 
-                ? 'border-[#D4AF37] shadow-[0_0_15px_rgba(212,175,55,0.15)] bg-[#1a1a1a]' 
-                : 'border-[#242424] hover:border-[#3a3a3a]'
-            }`}
-          >
-            <div className="flex items-start gap-3">
-              <div className="w-10 h-10 rounded-lg bg-[#0D0D0D] border border-[#2d2d2d] flex items-center justify-center text-xl shrink-0">
-                {item.icon}
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center justify-between gap-2">
-                  <h3 className="text-sm font-bold text-white truncate">{item.name}</h3>
-                  <span className="text-[10px] font-semibold px-2 py-0.5 rounded bg-[#242424] text-[#2980B9] shrink-0">
-                    {item.type}
-                  </span>
-                </div>
-                <p className="text-xs text-[#CCCCCC] mt-1 line-clamp-2 leading-relaxed">
-                  {item.meaning}
-                </p>
-              </div>
-            </div>
+      {/* Menu de Abas (Navegação) */}
+      <View style={styles.abasContainer}>
+        <TouchableOpacity
+          style={[styles.aba, aba === 'runas' && styles.abaAtiva]}
+          onPress={() => setAba('runas')}>
+          <Text style={[styles.textoAba, aba === 'runas' && styles.textoAbaAtivo]}>Runas</Text>
+        </TouchableOpacity>
 
-            {activeRune?.id === item.id && (
-              <div className="mt-3 pt-3 border-t border-[#262626] text-xs text-[#A0A0A0] space-y-1">
-                <p className="text-[#D4AF37] font-semibold text-[11px] uppercase tracking-wider">
-                  Detalhes do Tomo:
-                </p>
-                <p className="italic leading-relaxed">{item.detail}</p>
-              </div>
-            )}
-          </div>
-        ))}
-      </div>
+        <TouchableOpacity
+          style={[styles.aba, aba === 'personagens' && styles.abaAtiva]}
+          onPress={() => setAba('personagens')}>
+          <Text style={[styles.textoAba, aba === 'personagens' && styles.textoAbaAtivo]}>Personagens</Text>
+        </TouchableOpacity>
 
-      {filtered.length === 0 && (
-        <div className="text-center py-10 bg-[#161616] border border-[#242424] rounded-xl">
-          <p className="text-xs text-[#666666]">Nenhuma runa encontrada com o termo pesquisado.</p>
-        </div>
-      )}
-    </div>
+        <TouchableOpacity
+          style={[styles.aba, aba === 'institutos' && styles.abaAtiva]}
+          onPress={() => setAba('institutos')}>
+          <Text style={[styles.textoAba, aba === 'institutos' && styles.textoAbaAtivo]}>Institutos</Text>
+        </TouchableOpacity>
+      </View>
+
+      {/* Exibição com FlatList */}
+      <View style={styles.listaContainer}>
+        {aba === 'runas' && (
+          <FlatList
+            data={runasFiltradas}
+            keyExtractor={(item) => item.id}
+            renderItem={renderItemRuna}
+          />
+        )}
+
+        {aba === 'personagens' && (
+          <FlatList
+            data={persFiltrados}
+            keyExtractor={(item) => item.id}
+            renderItem={renderItemPersonagem}
+          />
+        )}
+
+        {aba === 'institutos' && (
+          <FlatList
+            data={instFiltrados}
+            keyExtractor={(item) => item.id}
+            renderItem={renderItemInstituto}
+          />
+        )}
+      </View>
+    </SafeAreaView>
   );
 }
 
-function CharactersTab() {
-  const [search, setSearch] = useState('');
-
-  const filtered = CHARACTERS_DATA.filter(char =>
-    char.name.toLowerCase().includes(search.toLowerCase()) ||
-    char.role.toLowerCase().includes(search.toLowerCase()) ||
-    char.weapon.toLowerCase().includes(search.toLowerCase())
-  );
-
-  return (
-    <div className="space-y-4">
-      <div>
-        <h2 className="text-xl font-serif font-bold text-white mb-1">Caçadores & Aliados</h2>
-        <p className="text-xs text-[#888888]">
-          Guerreiros Nephilim, Feiticeiros e Seres do Submundo nos arquivos.
-        </p>
-      </div>
-
-      <div className="relative">
-        <input
-          type="text"
-          placeholder="🔍 Buscar personagem, classe ou arma..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="w-full bg-[#161616] border border-[#282828] rounded-xl px-4 py-2.5 text-xs text-white placeholder-[#666666] focus:outline-none focus:border-[#D4AF37] transition-colors"
-        />
-      </div>
-
-      <div className="space-y-3">
-        {filtered.map((item) => (
-          <div key={item.id} className="bg-[#161616] border border-[#242424] rounded-xl p-4 space-y-3 hover:border-[#3a3a3a] transition-all">
-            <div className="flex items-center justify-between gap-3">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-[#0D0D0D] border border-[#333333] flex items-center justify-center text-xl">
-                  {item.avatar}
-                </div>
-                <div>
-                  <h3 className="text-sm font-bold text-white">{item.name}</h3>
-                  <p className="text-xs text-[#888888]">{item.role}</p>
-                </div>
-              </div>
-              
-              <span className={`text-[11px] font-bold px-2.5 py-1 rounded-md ${
-                item.status === 'Ativo' 
-                  ? 'bg-[#27AE60]/10 text-[#27AE60] border border-[#27AE60]/30' 
-                  : 'bg-[#2980B9]/10 text-[#2980B9] border border-[#2980B9]/30'
-              }`}>
-                {item.status}
-              </span>
-            </div>
-
-            <div className="pt-2 border-t border-[#222222] grid grid-cols-2 gap-2 text-xs">
-              <div>
-                <span className="text-[#D4AF37] font-semibold block text-[10px] uppercase">Sede:</span>
-                <span className="text-[#A0A0A0]">{item.institute}</span>
-              </div>
-              <div>
-                <span className="text-[#D4AF37] font-semibold block text-[10px] uppercase">Arma Favorita:</span>
-                <span className="text-[#A0A0A0]">{item.weapon}</span>
-              </div>
-            </div>
-
-            {item.quote && (
-              <p className="text-[11px] italic text-[#777777] pt-1">
-                "{item.quote}"
-              </p>
-            )}
-          </div>
-        ))}
-      </div>
-
-      {filtered.length === 0 && (
-        <div className="text-center py-10 bg-[#161616] border border-[#242424] rounded-xl">
-          <p className="text-xs text-[#666666]">Nenhum personagem encontrado.</p>
-        </div>
-      )}
-    </div>
-  );
-}
-
-function InstitutesTab() {
-  return (
-    <div className="space-y-4">
-      <div>
-        <h2 className="text-xl font-serif font-bold text-white mb-1">Sedes & Bastiões da Clave</h2>
-        <p className="text-xs text-[#888888]">
-          Fortalezas estratégicas dos Caçadores de Sombras espalhadas pelo mundo e Idris.
-        </p>
-      </div>
-
-      <div className="space-y-3">
-        {INSTITUTES_DATA.map((item) => (
-          <div key={item.id} className="bg-[#161616] border-l-4 border-l-[#D4AF37] border-y border-r border-[#242424] rounded-r-xl p-4 space-y-3 hover:border-r-[#3a3a3a] transition-all">
-            <div className="flex items-start justify-between gap-3">
-              <div>
-                <h3 className="text-sm font-bold text-white">{item.name}</h3>
-                <p className="text-xs text-[#888888] flex items-center gap-1 mt-0.5">
-                  <span>📍 {item.location}</span>
-                </p>
-              </div>
-              <div className="bg-[#222222] px-2.5 py-1 rounded text-xs font-mono font-bold text-[#D4AF37] border border-[#333333]">
-                {item.code}
-              </div>
-            </div>
-
-            <p className="text-xs text-[#CCCCCC] leading-relaxed">
-              {item.description}
-            </p>
-
-            <div className="pt-2 border-t border-[#222222] flex items-center justify-between text-xs">
-              <div>
-                <span className="text-[#D4AF37] font-semibold">Líder Responsável: </span>
-                <span className="text-[#A0A0A0]">{item.head}</span>
-              </div>
-              <span className="text-[10px] text-[#2980B9] font-medium bg-[#2980B9]/10 px-2 py-0.5 rounded border border-[#2980B9]/30">
-                {item.status}
-              </span>
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-// Wrapped in Error Boundary for ultimate Web safety
-export default function App() {
-  return (
-    <ErrorBoundary>
-      <ShadowhuntersApp />
-    </ErrorBoundary>
-  );
+// --- ESTILOS DO PROJETO (Cores: Preto Obsidiana, Dourado, Azul Seráfico, Branco) ---
+const styles = StyleSheet.create({
+  containerLogin: {
+    flex: 1,
+    backgroundColor: '#0a0a0c',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  cardLogin: {
+    width: '100%',
+    maxWidth: 400,
+    backgroundColor: '#16161a',
+    padding: 25,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#d4af37',
+  },
+  tituloHeader: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    color: '#d4af37',
+    textAlign: 'center',
+  },
+  subtituloHeader: {
+    fontSize: 14,
+    color: '#94a3b8',
+    textAlign: 'center',
+    marginBottom: 25,
+  },
+  formGroup: {
+    width: '100%',
+  },
+  label: {
+    color: '#f8fafc',
+    fontSize: 14,
+    marginBottom: 6,
+    fontWeight: '600',
+  },
+  input: {
+    backgroundColor: '#0f172a',
+    borderWidth: 1,
+    borderColor: '#334155',
+    borderRadius: 8,
+    color: '#fff',
+    padding: 12,
+    marginBottom: 16,
+    fontSize: 15,
+  },
+  botaoGold: {
+    backgroundColor: '#d4af37',
+    padding: 14,
+    borderRadius: 8,
+    alignItems: 'center',
+    marginTop: 10,
+  },
+  textoBotaoGold: {
+    color: '#000',
+    fontWeight: 'bold',
+    fontSize: 15,
+  },
+  containerApp: {
+    flex: 1,
+    backgroundColor: '#0a0a0c',
+  },
+  topBar: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 16,
+    backgroundColor: '#16161a',
+    borderBottomWidth: 1,
+    borderColor: '#d4af37',
+  },
+  topBarTitulo: {
+    color: '#d4af37',
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  topBarUser: {
+    color: '#94a3b8',
+    fontSize: 12,
+  },
+  botaoSair: {
+    backgroundColor: '#991b1b',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 6,
+  },
+  textoBotaoSair: {
+    color: '#fff',
+    fontWeight: 'bold',
+    fontSize: 12,
+  },
+  searchContainer: {
+    padding: 12,
+  },
+  searchInput: {
+    backgroundColor: '#16161a',
+    borderWidth: 1,
+    borderColor: '#334155',
+    color: '#fff',
+    borderRadius: 8,
+    padding: 10,
+  },
+  abasContainer: {
+    flexDirection: 'row',
+    marginHorizontal: 12,
+    marginBottom: 10,
+    backgroundColor: '#16161a',
+    borderRadius: 8,
+    padding: 4,
+  },
+  aba: {
+    flex: 1,
+    paddingVertical: 10,
+    alignItems: 'center',
+    borderRadius: 6,
+  },
+  abaAtiva: {
+    backgroundColor: '#d4af37',
+  },
+  textoAba: {
+    color: '#94a3b8',
+    fontWeight: '600',
+    fontSize: 13,
+  },
+  textoAbaAtivo: {
+    color: '#000',
+    fontWeight: 'bold',
+  },
+  listaContainer: {
+    flex: 1,
+    paddingHorizontal: 12,
+  },
+  cardItem: {
+    backgroundColor: '#16161a',
+    padding: 15,
+    borderRadius: 8,
+    marginBottom: 10,
+    borderLeftWidth: 4,
+    borderLeftColor: '#38bdf8',
+  },
+  cardItemRow: {
+    flexDirection: 'row',
+    backgroundColor: '#16161a',
+    padding: 12,
+    borderRadius: 8,
+    marginBottom: 10,
+    alignItems: 'center',
+    borderLeftWidth: 4,
+    borderLeftColor: '#d4af37',
+  },
+  avatar: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    marginRight: 12,
+  },
+  infoCol: {
+    flex: 1,
+  },
+  itemTitulo: {
+    color: '#f8fafc',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  itemTag: {
+    color: '#38bdf8',
+    fontSize: 12,
+    marginVertical: 2,
+  },
+  itemDesc: {
+    color: '#94a3b8',
+    fontSize: 13,
+  },
+});
