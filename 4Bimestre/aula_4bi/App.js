@@ -1,1242 +1,840 @@
 import React, { useState } from 'react';
+
 import {
   View,
   Text,
   TextInput,
   TouchableOpacity,
-  Alert,
   Image,
-  FlatList,
+  ImageBackground,
   ScrollView,
+  FlatList,
+  Alert,
   StyleSheet
 } from 'react-native';
 
-import { NavigationContainer } from '@react-navigation/native';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
-const Stack = createNativeStackNavigator();
+// =====================================================
+// IMAGENS
+// =====================================================
+
+const imagens = {
+  clary: require('./assets/clary.jpg'),
+  alec: require('./assets/alec.jpg'),
+  magnus: require('./assets/magnus.jpg'),
+  isabelle: require('./assets/isabelle.jpg'),
+  jace: require('./assets/jace.jpg'),
+  runas: require('./assets/runas.jpg'),
+  simon: require('./assets/simon.jpg')
+};
 
 
-// ======================================================
+// =====================================================
 // PERSONAGENS
-// ======================================================
+// =====================================================
 
 const personagens = [
   {
     id: '1',
-    nome: 'Clary',
-    nomeCompleto: 'Clary Fray',
-    tipo: 'Caçadora de Sombras',
-    poder: 'Criação de runas',
+    nome: 'Clary Fairchild',
+    tipo: 'Shadowhunter',
+    imagem: imagens.clary,
     descricao:
-      'Clary descobre que faz parte do mundo dos Caçadores de Sombras e passa a conhecer o Instituto e as runas.'
+      'Clary é uma Shadowhunter determinada, corajosa e muito ligada às pessoas que ama.'
   },
 
   {
     id: '2',
-    nome: 'Jace',
-    nomeCompleto: 'Jace Herondale',
-    tipo: 'Caçador de Sombras',
-    poder: 'Combate e habilidades de Caçador',
+    nome: 'Alec Lightwood',
+    tipo: 'Shadowhunter',
+    imagem: imagens.alec,
     descricao:
-      'Jace é um dos principais Caçadores de Sombras e possui grande habilidade em combate.'
+      'Alec é um Shadowhunter disciplinado, protetor e extremamente leal aos seus amigos.'
   },
 
   {
     id: '3',
-    nome: 'Simon',
-    nomeCompleto: 'Simon Lewis',
-    tipo: 'Mundano',
-    poder: 'Ser sobrenatural',
+    nome: 'Magnus Bane',
+    tipo: 'Alto Feiticeiro',
+    imagem: imagens.magnus,
     descricao:
-      'Simon é amigo de Clary e acaba entrando no mundo sobrenatural que antes desconhecia.'
+      'Magnus é um poderoso feiticeiro, conhecido por sua personalidade marcante e seus conhecimentos sobre o mundo das sombras.'
   },
 
   {
     id: '4',
-    nome: 'Alexander',
-    nomeCompleto: 'Alexander Lightwood',
-    tipo: 'Caçador de Sombras',
-    poder: 'Arco e flecha',
+    nome: 'Isabelle Lightwood',
+    tipo: 'Shadowhunter',
+    imagem: imagens.isabelle,
     descricao:
-      'Alexander, conhecido como Alec, é um Caçador de Sombras habilidoso e integrante da família Lightwood.'
+      'Isabelle é uma Shadowhunter habilidosa, confiante e determinada.'
   },
 
   {
     id: '5',
-    nome: 'Isabelle',
-    nomeCompleto: 'Isabelle Lightwood',
-    tipo: 'Caçadora de Sombras',
-    poder: 'Combate',
+    nome: 'Jace Herondale',
+    tipo: 'Shadowhunter',
+    imagem: imagens.jace,
     descricao:
-      'Isabelle é uma Caçadora de Sombras determinada e muito habilidosa em combate.'
+      'Jace é um dos Shadowhunters mais habilidosos, conhecido por sua coragem, confiança e lealdade.'
   },
 
   {
     id: '6',
-    nome: 'Magnus',
-    nomeCompleto: 'Magnus Bane',
-    tipo: 'Feiticeiro',
-    poder: 'Magia',
+    nome: 'Simon Lewis',
+    tipo: 'Mundano',
+    imagem: imagens.simon,
     descricao:
-      'Magnus Bane é um feiticeiro poderoso que possui grande conhecimento sobre o mundo sobrenatural.'
+      'Simon é leal, engraçado e está sempre tentando ajudar seus amigos, mesmo quando se mete em situações perigosas.'
   }
 ];
 
 
-// ======================================================
-// LOGIN
-// ======================================================
+// =====================================================
+// APP
+// =====================================================
 
-function Login({ navigation }) {
+export default function App() {
 
+  // TELAS
+  const [tela, setTela] = useState('login');
+
+  // LOGIN
   const [usuario, setUsuario] = useState('');
   const [senha, setSenha] = useState('');
+
+  // PERFIL
+  const [nome, setNome] = useState('');
+
+  // PERSONAGEM
+  const [personagemSelecionado, setPersonagemSelecionado] = useState(null);
+
+  // OUTRAS INTERAÇÕES
+  const [runaSelecionada, setRunaSelecionada] = useState('');
+  const [favorito, setFavorito] = useState(null);
+  const [xp, setXp] = useState(0);
+  const [modoCacador, setModoCacador] = useState(false);
+
+  // PESQUISA
+  const [pesquisa, setPesquisa] = useState('');
+
+
+  // =====================================================
+  // LOGIN
+  // =====================================================
 
   function fazerLogin() {
 
     if (usuario === 'admin' && senha === 'admin') {
 
-      navigation.navigate('Home');
+      setTela('home');
+
+      Alert.alert(
+        'Bem-vindo!',
+        'Você entrou no Instituto dos Shadowhunters.'
+      );
 
     } else {
 
       Alert.alert(
-        'Erro',
-        'Usuário ou senha incorretos!'
+        'Login incorreto',
+        'Use usuário: admin e senha: admin.'
       );
-
     }
   }
 
-  return (
 
-    <ScrollView
-      contentContainerStyle={styles.loginContainer}
-    >
+  // =====================================================
+  // ESCOLHER PERSONAGEM
+  // =====================================================
 
-      <Text style={styles.espadas}>
-        ⚔️
-      </Text>
+  function escolherPersonagem(personagem) {
 
-      <Text style={styles.loginTitulo}>
-        SHADOWHUNTERS
-      </Text>
+    setPersonagemSelecionado(personagem);
 
-      <Text style={styles.loginSubtitulo}>
-        BEM-VINDO AO INSTITUTO
-      </Text>
+    setXp(xp + 10);
+
+    setTela('detalhes');
+  }
 
 
-      <View style={styles.loginCard}>
+  // =====================================================
+  // FAVORITO
+  // =====================================================
 
-        <Text style={styles.label}>
-          Usuário
-        </Text>
+  function favoritar(personagem) {
 
-        <TextInput
-          style={styles.input}
-          placeholder="Digite seu usuário"
-          placeholderTextColor="#777"
-          value={usuario}
-          onChangeText={setUsuario}
-        />
+    if (favorito === personagem.id) {
 
+      setFavorito(null);
 
-        <Text style={styles.label}>
-          Senha
-        </Text>
-
-        <TextInput
-          style={styles.input}
-          placeholder="Digite sua senha"
-          placeholderTextColor="#777"
-          secureTextEntry={true}
-          value={senha}
-          onChangeText={setSenha}
-        />
-
-
-        <TouchableOpacity
-          style={styles.botaoPrincipal}
-          onPress={fazerLogin}
-        >
-
-          <Text style={styles.textoBotao}>
-            ENTRAR
-          </Text>
-
-        </TouchableOpacity>
-
-
-        <Text style={styles.dica}>
-          Usuário: admin{'\n'}
-          Senha: admin
-        </Text>
-
-      </View>
-
-    </ScrollView>
-  );
-}
-
-
-// ======================================================
-// HOME
-// ======================================================
-
-function Home({ navigation }) {
-
-  const [favoritos, setFavoritos] = useState([]);
-  const [xp, setXp] = useState(0);
-
-
-  function adicionarFavorito(id) {
-
-    if (favoritos.includes(id)) {
-
-      setFavoritos(
-        favoritos.filter(item => item !== id)
+      Alert.alert(
+        'Favorito removido',
+        `${personagem.nome} não é mais seu favorito.`
       );
-
-      setXp(xp - 5);
 
     } else {
 
-      setFavoritos([
-        ...favoritos,
-        id
-      ]);
+      setFavorito(personagem.id);
 
       setXp(xp + 5);
 
+      Alert.alert(
+        'Favorito!',
+        `${personagem.nome} foi adicionado aos favoritos.`
+      );
     }
   }
 
 
-  function abrirPersonagem(personagem) {
+  // =====================================================
+  // ESCOLHER RUNA
+  // =====================================================
 
-    navigation.navigate(
-      'Detalhes',
-      {
-        personagem: personagem
-      }
+  function escolherRuna(runa) {
+
+    setRunaSelecionada(runa);
+
+    setXp(xp + 5);
+
+    Alert.alert(
+      'Runa escolhida',
+      `Você escolheu a runa: ${runa}.`
     );
   }
 
 
-  function renderPersonagem({ item }) {
+  // =====================================================
+  // MODO CAÇADOR
+  // =====================================================
 
-    const favorito =
-      favoritos.includes(item.id);
+  function ativarModoCacador() {
+
+    if (modoCacador) {
+
+      setModoCacador(false);
+
+      Alert.alert(
+        'Modo desativado',
+        'Você saiu do modo Shadowhunter.'
+      );
+
+    } else {
+
+      setModoCacador(true);
+
+      setXp(xp + 20);
+
+      Alert.alert(
+        'Modo Shadowhunter',
+        'O modo Caçador de Sombras foi ativado!'
+      );
+    }
+  }
+
+
+  // =====================================================
+  // RESETAR
+  // =====================================================
+
+  function resetar() {
+
+    setNome('');
+    setPersonagemSelecionado(null);
+    setRunaSelecionada('');
+    setFavorito(null);
+    setXp(0);
+    setModoCacador(false);
+    setPesquisa('');
+
+    Alert.alert(
+      'Dados apagados',
+      'Suas escolhas foram resetadas.'
+    );
+  }
+
+
+  // =====================================================
+  // SAIR
+  // =====================================================
+
+  function sair() {
+
+    setUsuario('');
+    setSenha('');
+    setTela('login');
+  }
+
+
+  // =====================================================
+  // FILTRO DOS PERSONAGENS
+  // =====================================================
+
+  const personagensFiltrados = personagens.filter((personagem) =>
+    personagem.nome
+      .toLowerCase()
+      .includes(pesquisa.toLowerCase())
+  );
+
+
+  // =====================================================
+  // TELA DE LOGIN
+  // =====================================================
+
+  if (tela === 'login') {
+
+    return (
+
+      <ImageBackground
+        source={imagens.runas}
+        style={styles.fundo}
+        imageStyle={styles.fundoImagem}
+      >
+
+        <View style={styles.overlay}>
+
+          <Text style={styles.titulo}>
+            SHADOWHUNTERS
+          </Text>
+
+          <Text style={styles.subtitulo}>
+            THE MORTAL INSTRUMENTS
+          </Text>
+
+          <View style={styles.caixaLogin}>
+
+            <Text style={styles.tituloLogin}>
+              INSTITUTO
+            </Text>
+
+            <Text style={styles.textoLogin}>
+              Entre no mundo dos Caçadores de Sombras
+            </Text>
+
+
+            <TextInput
+              style={styles.input}
+              placeholder="Usuário"
+              placeholderTextColor="#aaa"
+              value={usuario}
+              onChangeText={setUsuario}
+            />
+
+
+            <TextInput
+              style={styles.input}
+              placeholder="Senha"
+              placeholderTextColor="#aaa"
+              secureTextEntry
+              value={senha}
+              onChangeText={setSenha}
+            />
+
+
+            <TouchableOpacity
+              style={styles.botaoDourado}
+              onPress={fazerLogin}
+            >
+
+              <Text style={styles.textoBotao}>
+                ENTRAR
+              </Text>
+
+            </TouchableOpacity>
+
+          </View>
+
+        </View>
+
+      </ImageBackground>
+    );
+  }
+
+
+  // =====================================================
+  // TELA HOME
+  // =====================================================
+
+  if (tela === 'home') {
+
+    return (
+
+      <View style={styles.container}>
+
+        <View style={styles.topo}>
+
+          <View>
+
+            <Text style={styles.logo}>
+              SHADOWHUNTERS
+            </Text>
+
+            <Text style={styles.bemVindo}>
+              Bem-vindo ao Instituto, {nome || 'Caçador'}
+            </Text>
+
+          </View>
+
+          <Text style={styles.xp}>
+            XP: {xp}
+          </Text>
+
+        </View>
+
+
+        <TextInput
+          style={styles.inputPesquisa}
+          placeholder="Pesquisar personagem..."
+          placeholderTextColor="#999"
+          value={pesquisa}
+          onChangeText={setPesquisa}
+        />
+
+
+        <Text style={styles.tituloSecao}>
+          PERSONAGENS
+        </Text>
+
+
+        <FlatList
+          data={personagensFiltrados}
+          keyExtractor={(item) => item.id}
+          showsVerticalScrollIndicator={false}
+
+          renderItem={({ item }) => (
+
+            <TouchableOpacity
+              style={styles.card}
+              onPress={() => escolherPersonagem(item)}
+            >
+
+              <Image
+                source={item.imagem}
+                style={styles.imagemCard}
+              />
+
+              <View style={styles.infoCard}>
+
+                <Text style={styles.nomePersonagem}>
+                  {item.nome}
+                </Text>
+
+                <Text style={styles.tipoPersonagem}>
+                  {item.tipo}
+                </Text>
+
+                <Text style={styles.verMais}>
+                  VER DETALHES →
+                </Text>
+
+              </View>
+
+
+              <TouchableOpacity
+                style={styles.botaoFavorito}
+                onPress={() => favoritar(item)}
+              >
+
+                <Text style={styles.estrela}>
+                  {favorito === item.id ? '★' : '☆'}
+                </Text>
+
+              </TouchableOpacity>
+
+            </TouchableOpacity>
+          )}
+        />
+
+
+        <View style={styles.menu}>
+
+          <TouchableOpacity
+            style={styles.menuBotao}
+            onPress={() => setTela('perfil')}
+          >
+
+            <Text style={styles.menuTexto}>
+              MEU PERFIL
+            </Text>
+
+          </TouchableOpacity>
+
+
+          <TouchableOpacity
+            style={styles.menuBotao}
+            onPress={ativarModoCacador}
+          >
+
+            <Text style={styles.menuTexto}>
+              {modoCacador
+                ? 'CAÇADOR ATIVO'
+                : 'MODO CAÇADOR'}
+            </Text>
+
+          </TouchableOpacity>
+
+
+          <TouchableOpacity
+            style={styles.menuBotao}
+            onPress={resetar}
+          >
+
+            <Text style={styles.menuTexto}>
+              RESETAR
+            </Text>
+
+          </TouchableOpacity>
+
+
+          <TouchableOpacity
+            style={styles.menuBotaoVermelho}
+            onPress={sair}
+          >
+
+            <Text style={styles.menuTexto}>
+              SAIR
+            </Text>
+
+          </TouchableOpacity>
+
+        </View>
+
+      </View>
+    );
+  }
+
+
+  // =====================================================
+  // TELA DETALHES
+  // =====================================================
+
+  if (tela === 'detalhes' && personagemSelecionado) {
+
+    const personagem = personagemSelecionado;
+
+    return (
+
+      <View style={styles.container}>
+
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+        >
+
+          <TouchableOpacity
+            style={styles.voltar}
+            onPress={() => setTela('home')}
+          >
+
+            <Text style={styles.voltarTexto}>
+              ← VOLTAR
+            </Text>
+
+          </TouchableOpacity>
+
+
+          <Image
+            source={personagem.imagem}
+            style={styles.imagemGrande}
+          />
+
+
+          <View style={styles.detalhes}>
+
+            <Text style={styles.nomeGrande}>
+              {personagem.nome}
+            </Text>
+
+            <Text style={styles.tipoGrande}>
+              {personagem.tipo}
+            </Text>
+
+            <Text style={styles.descricao}>
+              {personagem.descricao}
+            </Text>
+
+
+            <TouchableOpacity
+              style={styles.botaoDourado}
+              onPress={() => favoritar(personagem)}
+            >
+
+              <Text style={styles.textoBotao}>
+                {favorito === personagem.id
+                  ? '★ FAVORITO'
+                  : '☆ ADICIONAR AOS FAVORITOS'}
+              </Text>
+
+            </TouchableOpacity>
+
+
+            <Text style={styles.tituloSecao}>
+              ESCOLHA SUA RUNA
+            </Text>
+
+
+            <Image
+              source={imagens.runas}
+              style={styles.imagemRunas}
+            />
+
+
+            <View style={styles.runasContainer}>
+
+              <TouchableOpacity
+                style={styles.botaoRuna}
+                onPress={() => escolherRuna('Cura')}
+              >
+
+                <Text style={styles.textoRuna}>
+                  CURA
+                </Text>
+
+              </TouchableOpacity>
+
+
+              <TouchableOpacity
+                style={styles.botaoRuna}
+                onPress={() => escolherRuna('Força')}
+              >
+
+                <Text style={styles.textoRuna}>
+                  FORÇA
+                </Text>
+
+              </TouchableOpacity>
+
+
+              <TouchableOpacity
+                style={styles.botaoRuna}
+                onPress={() => escolherRuna('Parabatai')}
+              >
+
+                <Text style={styles.textoRuna}>
+                  PARABATAI
+                </Text>
+
+              </TouchableOpacity>
+
+            </View>
+
+
+            {runaSelecionada !== '' && (
+
+              <Text style={styles.runaEscolhida}>
+                Runa escolhida: {runaSelecionada}
+              </Text>
+
+            )}
+
+          </View>
+
+        </ScrollView>
+
+      </View>
+    );
+  }
+
+
+  // =====================================================
+  // TELA MEU PERFIL
+  // =====================================================
+
+  if (tela === 'perfil') {
+
+    const personagemFavorito =
+      personagens.find((item) => item.id === favorito);
 
 
     return (
 
-      <View style={styles.personagemCard}>
+      <View style={styles.container}>
 
-        <View style={styles.personagemInfo}>
-
-          <Text style={styles.personagemNome}>
-            {item.nome}
-          </Text>
-
-          <Text style={styles.personagemTipo}>
-            {item.tipo}
-          </Text>
-
-          <Text style={styles.personagemPoder}>
-            ✦ {item.poder}
-          </Text>
-
-        </View>
-
-
-        <View style={styles.botoesPersonagem}>
+        <ScrollView>
 
           <TouchableOpacity
-            style={styles.botaoFavorito}
-            onPress={() =>
-              adicionarFavorito(item.id)
-            }
+            style={styles.voltar}
+            onPress={() => setTela('home')}
           >
 
-            <Text style={styles.textoFavorito}>
-              {favorito ? '★' : '☆'}
+            <Text style={styles.voltarTexto}>
+              ← VOLTAR
             </Text>
 
           </TouchableOpacity>
 
 
-          <TouchableOpacity
-            style={styles.botaoDetalhes}
-            onPress={() =>
-              abrirPersonagem(item)
-            }
-          >
+          <Text style={styles.tituloPerfil}>
+            MEU PERFIL
+          </Text>
 
-            <Text style={styles.textoBotaoPequeno}>
-              VER
+
+          <View style={styles.perfilBox}>
+
+            <Text style={styles.label}>
+              SEU NOME
             </Text>
 
-          </TouchableOpacity>
 
-        </View>
-
-      </View>
-    );
-  }
-
-
-  return (
-
-    <View style={styles.container}>
-
-      <FlatList
-
-        data={personagens}
-
-        keyExtractor={(item) => item.id}
-
-        renderItem={renderPersonagem}
-
-        ListHeaderComponent={
-
-          <View>
-
-            <View style={styles.header}>
-
-              <Text style={styles.espadas}>
-                ⚔️
-              </Text>
-
-              <Text style={styles.titulo}>
-                SHADOWHUNTERS
-              </Text>
-
-              <Text style={styles.subtitulo}>
-                THE MORTAL INSTRUMENTS
-              </Text>
-
-            </View>
+            <TextInput
+              style={styles.input}
+              placeholder="Digite seu nome"
+              placeholderTextColor="#999"
+              value={nome}
+              onChangeText={setNome}
+            />
 
 
-            <View style={styles.banner}>
-
-              <Text style={styles.bannerTexto}>
-                ✦ BEM-VINDO AO INSTITUTO ✦
-              </Text>
-
-              <Text style={styles.bannerDescricao}>
-                Escolha seu personagem e descubra seu destino.
-              </Text>
-
-            </View>
-
-
-            <View style={styles.xpBox}>
-
-              <Text style={styles.xpTitulo}>
-                ⚔️ EXPERIÊNCIA
-              </Text>
-
-              <Text style={styles.xpTexto}>
-                {xp} XP
-              </Text>
-
-            </View>
-
-
-            <Text style={styles.secaoTitulo}>
-              PERSONAGENS
+            <Text style={styles.xpPerfil}>
+              XP ACUMULADO: {xp}
             </Text>
 
-          </View>
-        }
+
+            <Text style={styles.label}>
+              PERSONAGEM FAVORITO
+            </Text>
 
 
-        ListFooterComponent={
+            {personagemFavorito ? (
 
-          <View style={styles.footer}>
+              <View>
+
+                <Image
+                  source={personagemFavorito.imagem}
+                  style={styles.imagemPerfil}
+                />
+
+                <Text style={styles.nomeFavorito}>
+                  {personagemFavorito.nome}
+                </Text>
+
+              </View>
+
+            ) : (
+
+              <Text style={styles.semFavorito}>
+                Você ainda não escolheu um favorito.
+              </Text>
+
+            )}
+
+
+            {runaSelecionada !== '' && (
+
+              <Text style={styles.runaPerfil}>
+                Runa escolhida: {runaSelecionada}
+              </Text>
+
+            )}
+
 
             <TouchableOpacity
-              style={styles.botaoPerfil}
-              onPress={() =>
-                navigation.navigate('Perfil')
-              }
+              style={styles.botaoDourado}
+              onPress={resetar}
             >
 
               <Text style={styles.textoBotao}>
-                ✦ MEU PERFIL
+                APAGAR DADOS
               </Text>
 
             </TouchableOpacity>
 
-
-            <TouchableOpacity
-              style={styles.botaoSair}
-              onPress={() =>
-                navigation.navigate('Login')
-              }
-            >
-
-              <Text style={styles.textoBotao}>
-                SAIR
-              </Text>
-
-            </TouchableOpacity>
-
-
-            <Text style={styles.rodape}>
-              ⚔️ SHADOWHUNTERS FAN APP ⚔️
-            </Text>
-
           </View>
-        }
 
-      />
+        </ScrollView>
 
-    </View>
-  );
-}
-
-
-// ======================================================
-// DETALHES
-// ======================================================
-
-function Detalhes({ route, navigation }) {
-
-  const personagem = route.params.personagem;
-
-  const [runa, setRuna] = useState('');
-  const [modoCacador, setModoCacador] = useState(false);
-
-
-  function escolherRuna(nomeRuna) {
-
-    setRuna(nomeRuna);
-
-    Alert.alert(
-      'Runa escolhida',
-      'Você escolheu ' + nomeRuna + '!'
+      </View>
     );
-
   }
 
 
-  function ativarModoCacador() {
-
-    setModoCacador(!modoCacador);
-
-  }
-
-
-  return (
-
-    <ScrollView
-      style={styles.container}
-      contentContainerStyle={styles.conteudo}
-    >
-
-      <View style={styles.headerDetalhes}>
-
-        <Text style={styles.espadas}>
-          ⚔️
-        </Text>
-
-        <Text style={styles.titulo}>
-          {personagem.nome}
-        </Text>
-
-      </View>
-
-
-      <View style={styles.detalhesCard}>
-
-        <Text style={styles.detalhesNome}>
-          {personagem.nomeCompleto}
-        </Text>
-
-        <Text style={styles.detalhesTipo}>
-          {personagem.tipo}
-        </Text>
-
-
-        <View style={styles.linha} />
-
-
-        <Text style={styles.detalhesTitulo}>
-          PODER / HABILIDADE
-        </Text>
-
-        <Text style={styles.detalhesTexto}>
-          ✦ {personagem.poder}
-        </Text>
-
-
-        <Text style={styles.detalhesTitulo}>
-          SOBRE
-        </Text>
-
-        <Text style={styles.detalhesTexto}>
-          {personagem.descricao}
-        </Text>
-
-      </View>
-
-
-      <View style={styles.card}>
-
-        <Text style={styles.tituloCard}>
-          ✦ ESCOLHA UMA RUNA
-        </Text>
-
-
-        <TouchableOpacity
-          style={styles.botaoAzul}
-          onPress={() =>
-            escolherRuna('Runa de Força')
-          }
-        >
-
-          <Text style={styles.textoBotao}>
-            💪 RUNA DE FORÇA
-          </Text>
-
-        </TouchableOpacity>
-
-
-        <TouchableOpacity
-          style={styles.botaoVermelho}
-          onPress={() =>
-            escolherRuna('Runa de Cura')
-          }
-        >
-
-          <Text style={styles.textoBotao}>
-            ❤️ RUNA DE CURA
-          </Text>
-
-        </TouchableOpacity>
-
-
-        <TouchableOpacity
-          style={styles.botaoDourado}
-          onPress={() =>
-            escolherRuna('Runa de Visão')
-          }
-        >
-
-          <Text style={styles.textoBotaoEscuro}>
-            👁 RUNA DE VISÃO
-          </Text>
-
-        </TouchableOpacity>
-
-
-        {runa !== '' && (
-
-          <View style={styles.runaBox}>
-
-            <Text style={styles.runaTitulo}>
-              RUNA ESCOLHIDA
-            </Text>
-
-            <Text style={styles.runa}>
-              ✦ {runa}
-            </Text>
-
-          </View>
-
-        )}
-
-      </View>
-
-
-      <View style={styles.card}>
-
-        <Text style={styles.tituloCard}>
-          🔥 MODO CAÇADOR
-        </Text>
-
-        <Text style={styles.texto}>
-          Ative seu lado Shadowhunter.
-        </Text>
-
-
-        <TouchableOpacity
-          style={
-            modoCacador
-              ? styles.botaoAtivo
-              : styles.botaoVermelho
-          }
-          onPress={ativarModoCacador}
-        >
-
-          <Text style={styles.textoBotao}>
-
-            {modoCacador
-              ? '⚔️ MODO CAÇADOR ATIVADO'
-              : 'ATIVAR MODO CAÇADOR'}
-
-          </Text>
-
-        </TouchableOpacity>
-
-
-        {modoCacador && (
-
-          <View style={styles.ativadoBox}>
-
-            <Text style={styles.ativadoTitulo}>
-              ✦ AS RUNAS ESTÃO BRILHANDO ✦
-            </Text>
-
-            <Text style={styles.ativadoTexto}>
-              Seu treinamento começou.
-              {'\n\n'}
-              O Instituto está contando com você.
-              {'\n\n'}
-              Proteja os mundanos.
-            </Text>
-
-          </View>
-
-        )}
-
-      </View>
-
-
-      <TouchableOpacity
-        style={styles.botaoVoltar}
-        onPress={() =>
-          navigation.goBack()
-        }
-      >
-
-        <Text style={styles.textoBotao}>
-          ← VOLTAR
-        </Text>
-
-      </TouchableOpacity>
-
-    </ScrollView>
-  );
+  return null;
 }
 
 
-// ======================================================
-// PERFIL
-// ======================================================
-
-function Perfil({ navigation }) {
-
-  const [nome, setNome] = useState('');
-  const [personagem, setPersonagem] = useState('');
-  const [mensagem, setMensagem] = useState('');
-
-
-  function revelarDestino() {
-
-    if (nome === '') {
-
-      Alert.alert(
-        'Atenção',
-        'Digite seu nome primeiro!'
-      );
-
-      return;
-    }
-
-
-    if (personagem === '') {
-
-      Alert.alert(
-        'Atenção',
-        'Digite seu personagem favorito!'
-      );
-
-      return;
-    }
-
-
-    setMensagem(
-      'Olá, ' +
-      nome +
-      '! Seu destino está ligado ao universo de Shadowhunters. Seu personagem favorito é ' +
-      personagem +
-      '.'
-    );
-
-  }
-
-
-  return (
-
-    <ScrollView
-      style={styles.container}
-      contentContainerStyle={styles.conteudo}
-    >
-
-      <View style={styles.header}>
-
-        <Text style={styles.espadas}>
-          ⚔️
-        </Text>
-
-        <Text style={styles.titulo}>
-          MEU PERFIL
-        </Text>
-
-        <Text style={styles.subtitulo}>
-          DESCUBRA SEU DESTINO
-        </Text>
-
-      </View>
-
-
-      <View style={styles.card}>
-
-        <Text style={styles.tituloCard}>
-          SEU NOME
-        </Text>
-
-        <TextInput
-          style={styles.input}
-          placeholder="Digite seu nome"
-          placeholderTextColor="#777"
-          value={nome}
-          onChangeText={setNome}
-        />
-
-
-        <Text style={styles.tituloCard}>
-          PERSONAGEM FAVORITO
-        </Text>
-
-        <TextInput
-          style={styles.input}
-          placeholder="Ex: Jace"
-          placeholderTextColor="#777"
-          value={personagem}
-          onChangeText={setPersonagem}
-        />
-
-
-        <TouchableOpacity
-          style={styles.botaoPrincipal}
-          onPress={revelarDestino}
-        >
-
-          <Text style={styles.textoBotao}>
-            ✦ REVELAR MEU DESTINO ✦
-          </Text>
-
-        </TouchableOpacity>
-
-
-        {mensagem !== '' && (
-
-          <View style={styles.destinoBox}>
-
-            <Text style={styles.destinoTitulo}>
-              SEU DESTINO
-            </Text>
-
-            <Text style={styles.destinoTexto}>
-              {mensagem}
-            </Text>
-
-          </View>
-
-        )}
-
-      </View>
-
-
-      <TouchableOpacity
-        style={styles.botaoVoltar}
-        onPress={() =>
-          navigation.goBack()
-        }
-      >
-
-        <Text style={styles.textoBotao}>
-          ← VOLTAR
-        </Text>
-
-      </TouchableOpacity>
-
-    </ScrollView>
-  );
-}
-
-
-// ======================================================
-// APP PRINCIPAL / NAVEGAÇÃO
-// ======================================================
-
-export default function App() {
-
-  return (
-
-    <NavigationContainer>
-
-      <Stack.Navigator
-        initialRouteName="Login"
-        screenOptions={{
-          headerStyle: {
-            backgroundColor: '#050B14'
-          },
-
-          headerTintColor: '#D4AF37',
-
-          headerTitleStyle: {
-            fontWeight: 'bold'
-          }
-        }}
-      >
-
-        <Stack.Screen
-          name="Login"
-          component={Login}
-          options={{
-            headerShown: false
-          }}
-        />
-
-
-        <Stack.Screen
-          name="Home"
-          component={Home}
-          options={{
-            title: 'Shadowhunters'
-          }}
-        />
-
-
-        <Stack.Screen
-          name="Detalhes"
-          component={Detalhes}
-          options={{
-            title: 'Detalhes'
-          }}
-        />
-
-
-        <Stack.Screen
-          name="Perfil"
-          component={Perfil}
-          options={{
-            title: 'Meu Perfil'
-          }}
-        />
-
-      </Stack.Navigator>
-
-    </NavigationContainer>
-  );
-}
-
-
-// ======================================================
+// =====================================================
 // ESTILOS
-// ======================================================
+// =====================================================
 
 const styles = StyleSheet.create({
 
   container: {
     flex: 1,
-    backgroundColor: '#050B14'
-  },
-
-
-  conteudo: {
-    padding: 20,
-    paddingBottom: 50
-  },
-
-
-  loginContainer: {
-    flexGrow: 1,
     backgroundColor: '#050B14',
+    paddingTop: 40,
+    paddingHorizontal: 18
+  },
+
+
+  fundo: {
+    flex: 1
+  },
+
+
+  fundoImagem: {
+    opacity: 0.75
+  },
+
+
+  overlay: {
+    flex: 1,
+    backgroundColor: 'rgba(5,11,20,0.72)',
     justifyContent: 'center',
+    alignItems: 'center',
     padding: 25
-  },
-
-
-  espadas: {
-    fontSize: 45,
-    textAlign: 'center',
-    marginBottom: 10
-  },
-
-
-  loginTitulo: {
-    color: '#D4AF37',
-    fontSize: 28,
-    fontWeight: 'bold',
-    textAlign: 'center'
-  },
-
-
-  loginSubtitulo: {
-    color: '#FFFFFF',
-    fontSize: 12,
-    letterSpacing: 3,
-    textAlign: 'center',
-    marginTop: 8,
-    marginBottom: 30
-  },
-
-
-  loginCard: {
-    backgroundColor: '#0D1826',
-    borderWidth: 1,
-    borderColor: '#174D78',
-    borderRadius: 15,
-    padding: 20
-  },
-
-
-  header: {
-    alignItems: 'center',
-    paddingVertical: 25,
-    borderBottomWidth: 2,
-    borderBottomColor: '#D4AF37',
-    marginBottom: 20
-  },
-
-
-  headerDetalhes: {
-    alignItems: 'center',
-    paddingVertical: 15,
-    borderBottomWidth: 2,
-    borderBottomColor: '#D4AF37',
-    marginBottom: 20
   },
 
 
   titulo: {
     color: '#D4AF37',
-    fontSize: 28,
+    fontSize: 32,
     fontWeight: 'bold',
     textAlign: 'center'
   },
 
 
   subtitulo: {
-    color: '#FFFFFF',
-    fontSize: 12,
+    color: '#fff',
+    fontSize: 13,
     letterSpacing: 3,
-    marginTop: 6
+    marginBottom: 35
   },
 
 
-  label: {
+  caixaLogin: {
+    width: '100%',
+    maxWidth: 400,
+    backgroundColor: 'rgba(5,11,20,0.94)',
+    borderWidth: 1,
+    borderColor: '#D4AF37',
+    borderRadius: 15,
+    padding: 25
+  },
+
+
+  tituloLogin: {
     color: '#D4AF37',
-    fontSize: 16,
+    fontSize: 24,
     fontWeight: 'bold',
-    marginBottom: 7,
-    marginTop: 10
+    textAlign: 'center'
+  },
+
+
+  textoLogin: {
+    color: '#ccc',
+    textAlign: 'center',
+    marginTop: 8,
+    marginBottom: 25
   },
 
 
   input: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#111B29',
+    borderWidth: 1,
+    borderColor: '#38506B',
     borderRadius: 8,
     padding: 13,
-    fontSize: 16,
-    marginBottom: 15,
-    color: '#111'
-  },
-
-
-  botaoPrincipal: {
-    backgroundColor: '#D4AF37',
-    padding: 15,
-    borderRadius: 8,
-    alignItems: 'center',
-    marginTop: 10
-  },
-
-
-  textoBotao: {
-    color: '#FFFFFF',
-    fontSize: 15,
-    fontWeight: 'bold',
-    textAlign: 'center'
-  },
-
-
-  textoBotaoEscuro: {
-    color: '#050B14',
-    fontSize: 15,
-    fontWeight: 'bold',
-    textAlign: 'center'
-  },
-
-
-  dica: {
-    color: '#777',
-    textAlign: 'center',
-    marginTop: 20,
-    fontSize: 12
-  },
-
-
-  banner: {
-    backgroundColor: '#0D1826',
-    borderWidth: 1,
-    borderColor: '#8B1E2D',
-    borderRadius: 12,
-    padding: 20,
-    marginBottom: 20,
-    alignItems: 'center'
-  },
-
-
-  bannerTexto: {
-    color: '#D4AF37',
-    fontSize: 19,
-    fontWeight: 'bold',
-    textAlign: 'center'
-  },
-
-
-  bannerDescricao: {
-    color: '#FFFFFF',
-    marginTop: 10,
-    textAlign: 'center',
-    fontSize: 14
-  },
-
-
-  xpBox: {
-    backgroundColor: '#174D78',
-    borderRadius: 10,
-    padding: 15,
-    marginBottom: 25,
-    alignItems: 'center'
-  },
-
-
-  xpTitulo: {
-    color: '#FFFFFF',
-    fontWeight: 'bold',
-    fontSize: 14
-  },
-
-
-  xpTexto: {
-    color: '#D4AF37',
-    fontSize: 25,
-    fontWeight: 'bold',
-    marginTop: 5
-  },
-
-
-  secaoTitulo: {
-    color: '#D4AF37',
-    fontSize: 20,
-    fontWeight: 'bold',
-    marginBottom: 12
-  },
-
-
-  personagemCard: {
-    backgroundColor: '#0D1826',
-    borderWidth: 1,
-    borderColor: '#174D78',
-    borderRadius: 12,
-    padding: 15,
-    marginBottom: 12,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center'
-  },
-
-
-  personagemInfo: {
-    flex: 1
-  },
-
-
-  personagemNome: {
-    color: '#D4AF37',
-    fontSize: 20,
-    fontWeight: 'bold'
-  },
-
-
-  personagemTipo: {
-    color: '#FFFFFF',
-    marginTop: 4
-  },
-
-
-  personagemPoder: {
-    color: '#A9C7E8',
-    marginTop: 7
-  },
-
-
-  botoesPersonagem: {
-    alignItems: 'center',
-    marginLeft: 10
-  },
-
-
-  botaoFavorito: {
-    backgroundColor: '#8B1E2D',
-    borderRadius: 20,
-    width: 42,
-    height: 42,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 7
-  },
-
-
-  textoFavorito: {
-    color: '#FFFFFF',
-    fontSize: 25
-  },
-
-
-  botaoDetalhes: {
-    backgroundColor: '#174D78',
-    borderRadius: 6,
-    paddingVertical: 8,
-    paddingHorizontal: 12
-  },
-
-
-  textoBotaoPequeno: {
-    color: '#FFFFFF',
-    fontWeight: 'bold',
-    fontSize: 11
-  },
-
-
-  footer: {
-    marginTop: 20,
-    alignItems: 'center'
-  },
-
-
-  botaoPerfil: {
-    backgroundColor: '#D4AF37',
-    padding: 15,
-    borderRadius: 8,
-    width: '100%',
-    marginBottom: 10
-  },
-
-
-  botaoSair: {
-    backgroundColor: '#8B1E2D',
-    padding: 15,
-    borderRadius: 8,
-    width: '100%'
-  },
-
-
-  rodape: {
-    color: '#777',
-    marginTop: 25,
-    fontSize: 12,
-    textAlign: 'center'
-  },
-
-
-  detalhesCard: {
-    backgroundColor: '#0D1826',
-    borderWidth: 1,
-    borderColor: '#174D78',
-    borderRadius: 12,
-    padding: 20,
-    marginBottom: 20
-  },
-
-
-  detalhesNome: {
-    color: '#D4AF37',
-    fontSize: 26,
-    fontWeight: 'bold'
-  },
-
-
-  detalhesTipo: {
-    color: '#FFFFFF',
-    fontSize: 16,
-    marginTop: 5
-  },
-
-
-  linha: {
-    height: 1,
-    backgroundColor: '#174D78',
-    marginVertical: 15
-  },
-
-
-  detalhesTitulo: {
-    color: '#D4AF37',
-    fontWeight: 'bold',
-    fontSize: 15,
-    marginTop: 10,
-    marginBottom: 7
-  },
-
-
-  detalhesTexto: {
-    color: '#FFFFFF',
-    fontSize: 15,
-    lineHeight: 23
-  },
-
-
-  card: {
-    backgroundColor: '#0D1826',
-    borderWidth: 1,
-    borderColor: '#174D78',
-    borderRadius: 12,
-    padding: 20,
-    marginBottom: 20
-  },
-
-
-  tituloCard: {
-    color: '#D4AF37',
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 12
-  },
-
-
-  texto: {
-    color: '#FFFFFF',
-    fontSize: 14,
-    lineHeight: 21,
-    marginBottom: 12
-  },
-
-
-  botaoAzul: {
-    backgroundColor: '#174D78',
-    padding: 14,
-    borderRadius: 8,
-    marginBottom: 10
-  },
-
-
-  botaoVermelho: {
-    backgroundColor: '#8B1E2D',
-    padding: 14,
-    borderRadius: 8,
-    marginBottom: 10
+    color: '#fff',
+    marginBottom: 15
   },
 
 
@@ -1244,103 +842,300 @@ const styles = StyleSheet.create({
     backgroundColor: '#D4AF37',
     padding: 14,
     borderRadius: 8,
-    marginBottom: 10
+    alignItems: 'center',
+    marginTop: 10,
+    marginBottom: 15
   },
 
 
-  botaoAtivo: {
+  textoBotao: {
+    color: '#050B14',
+    fontWeight: 'bold'
+  },
+
+
+  topo: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 18
+  },
+
+
+  logo: {
+    color: '#D4AF37',
+    fontSize: 20,
+    fontWeight: 'bold'
+  },
+
+
+  bemVindo: {
+    color: '#ccc',
+    marginTop: 5
+  },
+
+
+  xp: {
+    color: '#D4AF37',
+    fontWeight: 'bold'
+  },
+
+
+  inputPesquisa: {
+    backgroundColor: '#111B29',
+    borderWidth: 1,
+    borderColor: '#38506B',
+    borderRadius: 8,
+    padding: 12,
+    color: '#fff',
+    marginBottom: 15
+  },
+
+
+  tituloSecao: {
+    color: '#D4AF37',
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginTop: 15,
+    marginBottom: 12
+  },
+
+
+  card: {
+    backgroundColor: '#101A28',
+    borderRadius: 12,
+    marginBottom: 12,
+    padding: 10,
+    flexDirection: 'row',
+    borderWidth: 1,
+    borderColor: '#243B55',
+    alignItems: 'center'
+  },
+
+
+  imagemCard: {
+    width: 85,
+    height: 110,
+    borderRadius: 8
+  },
+
+
+  infoCard: {
+    flex: 1,
+    paddingLeft: 12
+  },
+
+
+  nomePersonagem: {
+    color: '#fff',
+    fontSize: 17,
+    fontWeight: 'bold'
+  },
+
+
+  tipoPersonagem: {
+    color: '#D4AF37',
+    marginTop: 5
+  },
+
+
+  verMais: {
+    color: '#7899B8',
+    marginTop: 10,
+    fontSize: 12
+  },
+
+
+  botaoFavorito: {
+    padding: 10
+  },
+
+
+  estrela: {
+    color: '#D4AF37',
+    fontSize: 27
+  },
+
+
+  menu: {
+    borderTopWidth: 1,
+    borderTopColor: '#243B55',
+    paddingTop: 10,
+    paddingBottom: 5
+  },
+
+
+  menuBotao: {
     backgroundColor: '#174D78',
-    borderWidth: 2,
-    borderColor: '#D4AF37',
-    padding: 14,
-    borderRadius: 8,
-    marginBottom: 10
+    padding: 11,
+    borderRadius: 7,
+    marginBottom: 6,
+    alignItems: 'center'
   },
 
 
-  runaBox: {
-    backgroundColor: '#050B14',
-    borderWidth: 1,
-    borderColor: '#D4AF37',
-    borderRadius: 8,
-    padding: 15,
+  menuBotaoVermelho: {
+    backgroundColor: '#8B1E2D',
+    padding: 11,
+    borderRadius: 7,
+    marginBottom: 6,
+    alignItems: 'center'
+  },
+
+
+  menuTexto: {
+    color: '#fff',
+    fontWeight: 'bold',
+    fontSize: 12
+  },
+
+
+  voltar: {
+    paddingVertical: 10
+  },
+
+
+  voltarTexto: {
+    color: '#D4AF37',
+    fontWeight: 'bold'
+  },
+
+
+  imagemGrande: {
+    width: '100%',
+    height: 430,
+    borderRadius: 12
+  },
+
+
+  detalhes: {
+    paddingBottom: 40
+  },
+
+
+  nomeGrande: {
+    color: '#fff',
+    fontSize: 28,
+    fontWeight: 'bold',
+    marginTop: 18
+  },
+
+
+  tipoGrande: {
+    color: '#D4AF37',
+    fontSize: 16,
     marginTop: 5
   },
 
 
-  runaTitulo: {
-    color: '#D4AF37',
-    fontWeight: 'bold',
-    textAlign: 'center'
+  descricao: {
+    color: '#ccc',
+    fontSize: 16,
+    lineHeight: 24,
+    marginTop: 15
   },
 
 
-  runa: {
-    color: '#FFFFFF',
-    fontSize: 18,
-    textAlign: 'center',
-    marginTop: 7
+  imagemRunas: {
+    width: '100%',
+    height: 250,
+    borderRadius: 12,
+    marginBottom: 15
   },
 
 
-  ativadoBox: {
-    backgroundColor: '#050B14',
-    borderWidth: 1,
-    borderColor: '#D4AF37',
+  runasContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    flexWrap: 'wrap'
+  },
+
+
+  botaoRuna: {
+    backgroundColor: '#174D78',
+    padding: 12,
     borderRadius: 8,
-    padding: 15,
-    marginTop: 5
+    marginBottom: 10,
+    minWidth: 100,
+    alignItems: 'center'
   },
 
 
-  ativadoTitulo: {
+  textoRuna: {
+    color: '#fff',
+    fontWeight: 'bold'
+  },
+
+
+  runaEscolhida: {
     color: '#D4AF37',
+    fontSize: 16,
     fontWeight: 'bold',
-    textAlign: 'center'
-  },
-
-
-  ativadoTexto: {
-    color: '#FFFFFF',
-    textAlign: 'center',
-    marginTop: 12,
-    lineHeight: 21
-  },
-
-
-  destinoBox: {
-    backgroundColor: '#050B14',
-    borderWidth: 1,
-    borderColor: '#D4AF37',
-    borderRadius: 8,
-    padding: 15,
-    marginTop: 20
-  },
-
-
-  destinoTitulo: {
-    color: '#D4AF37',
-    fontSize: 18,
-    fontWeight: 'bold',
-    textAlign: 'center'
-  },
-
-
-  destinoTexto: {
-    color: '#FFFFFF',
-    fontSize: 14,
-    textAlign: 'center',
-    lineHeight: 22,
     marginTop: 10
   },
 
 
-  botaoVoltar: {
-    backgroundColor: '#174D78',
-    padding: 15,
-    borderRadius: 8,
-    alignItems: 'center',
+  tituloPerfil: {
+    color: '#D4AF37',
+    fontSize: 28,
+    fontWeight: 'bold',
     marginBottom: 20
+  },
+
+
+  perfilBox: {
+    backgroundColor: '#101A28',
+    borderRadius: 12,
+    padding: 20,
+    borderWidth: 1,
+    borderColor: '#243B55'
+  },
+
+
+  label: {
+    color: '#D4AF37',
+    fontWeight: 'bold',
+    marginBottom: 8,
+    marginTop: 10
+  },
+
+
+  xpPerfil: {
+    color: '#fff',
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginVertical: 20
+  },
+
+
+  imagemPerfil: {
+    width: '100%',
+    height: 350,
+    borderRadius: 10,
+    marginTop: 10
+  },
+
+
+  nomeFavorito: {
+    color: '#fff',
+    fontSize: 20,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    marginTop: 10
+  },
+
+
+  semFavorito: {
+    color: '#999',
+    marginBottom: 20
+  },
+
+
+  runaPerfil: {
+    color: '#D4AF37',
+    fontWeight: 'bold',
+    fontSize: 16, 
+    marginVertical: 20
   }
 
 });
