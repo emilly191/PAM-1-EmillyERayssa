@@ -7,12 +7,13 @@ import {
   TouchableOpacity,
   FlatList,
   Image,
+  ImageBackground,
   Alert,
   SafeAreaView,
   StatusBar,
 } from 'react-native';
 
-// --- DADOS DO APP (INSTITUTOS, RUNAS E PERSONAGENS) ---
+
 const RUNAS = [
   { id: '1', nome: 'Runa do Anjo (Raziel)', tipo: 'Poder Angelical', desc: 'Concede força divina e purificação contra demônios.' },
   { id: '2', nome: 'Iratze', tipo: 'Cura', desc: 'Runa básica de cura para fechar ferimentos de batalha.' },
@@ -25,6 +26,13 @@ const PERSONAGENS = [
   { id: '2', nome: 'Clary Fray', funcao: 'Caçadora de Sombras / Artista', arma: 'Poder de Criar Runas', foto: require('./assets/clary.jpg') },
   { id: '3', nome: 'Alec Lightwood', funcao: 'Líder do Instituto', arma: 'Arco e Flecha', foto: require('./assets/alec.jpg') },
   { id: '4', nome: 'Magnus Bane', funcao: 'Alto Feiticeiro de Brooklyn', arma: 'Magia de Feiticeiro', foto: require('./assets/magnus.jpg') },
+  { 
+  id: '5', 
+  nome: 'Isabelle Lightwood', 
+  funcao: 'Caçadora de Sombras', 
+  arma: 'Chicote de Prata Eletrum', 
+  foto: require('./assets/isabele.jpg') 
+},
 ];
 
 const INSTITUTOS = [
@@ -39,17 +47,15 @@ export default function App() {
   const [usuario, setUsuario] = useState('');
   const [senha, setSenha] = useState('');
 
-  // Estado para navegação e busca
   const [aba, setAba] = useState('runas'); // 'runas', 'personagens', 'institutos'
   const [busca, setBusca] = useState('');
 
-  // Função para validar o Login
   function realizarLogin() {
     if (usuario.trim() === '' || senha.trim() === '') {
       Alert.alert('Erro', 'Por favor, preencha o usuário e a senha!');
       return;
     }
-    // Aceita qualquer usuário para teste ou valida "shadowhunter"
+  
     if (senha === '1234' || senha === 'angelico') {
       setLogado(true);
     } else {
@@ -63,52 +69,60 @@ export default function App() {
     setSenha('');
   }
 
-  // --- TELA DE LOGIN ---
+ /
   if (!logado) {
     return (
-      <SafeAreaView style={styles.containerLogin}>
-        <StatusBar barStyle="light-content" />
-        <View style={styles.cardLogin}>
-          <Text style={styles.tituloHeader}>⚡ SHADOWHUNTERS ⚡</Text>
-          <Text style={styles.subtituloHeader}>Acervo do Instituto</Text>
+      <ImageBackground
+        source={require('./assets/fundo-login.jpg')} // Coloque o nome da sua imagem na pasta assets
+        style={{ flex: 1, width: '100%', height: '100%' }}
+        resizeMode="cover"
+      >
+        <SafeAreaView style={{ flex: 1, backgroundColor: 'rgba(10, 10, 12, 0.75)', justifyContent: 'center', alignItems: 'center', padding: 20 }}>
+          <StatusBar barStyle="light-content" />
+          <View style={{ width: '100%', maxWidth: 400, backgroundColor: 'rgba(22, 22, 26, 0.95)', padding: 25, borderRadius: 12, borderWidth: 1, borderColor: '#d4af37' }}>
+            <Text style={{ fontSize: 22, fontWeight: 'bold', color: '#d4af37', textAlign: 'center' }}>⚡ SHADOWHUNTERS ⚡</Text>
+            <Text style={{ fontSize: 14, color: '#94a3b8', textAlign: 'center', marginBottom: 25 }}>Acervo do Instituto</Text>
 
-          <View style={styles.formGroup}>
-            <Text style={styles.label}>Nephilim / Usuário:</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="Digite seu nome..."
-              placeholderTextColor="#888"
-              value={usuario}
-              onChangeText={setUsuario}
-            />
+            <View style={{ width: '100%' }}>
+              <Text style={{ color: '#f8fafc', fontSize: 14, marginBottom: 6, fontWeight: '600' }}>Nephilim / Usuário:</Text>
+              <TextInput
+                style={{ backgroundColor: '#0f172a', borderWidth: 1, borderColor: '#334155', borderRadius: 8, color: '#fff', padding: 12, marginBottom: 16, fontSize: 15 }}
+                placeholder="Digite seu nome..."
+                placeholderTextColor="#888"
+                value={usuario}
+                onChangeText={setUsuario}
+              />
 
-            <Text style={styles.label}>Senha de Acesso:</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="Sua senha (ex: 1234)..."
-              placeholderTextColor="#888"
-              secureTextEntry
-              value={senha}
-              onChangeText={setSenha}
-            />
+              <Text style={{ color: '#f8fafc', fontSize: 14, marginBottom: 6, fontWeight: '600' }}>Senha de Acesso:</Text>
+              <TextInput
+                style={{ backgroundColor: '#0f172a', borderWidth: 1, borderColor: '#334155', borderRadius: 8, color: '#fff', padding: 12, marginBottom: 16, fontSize: 15 }}
+                placeholder="Sua senha (ex: 1234)..."
+                placeholderTextColor="#888"
+                secureTextEntry
+                value={senha}
+                onChangeText={setSenha}
+              />
 
-            <TouchableOpacity style={styles.botaoGold} onPress={realizarLogin}>
-              <Text style={styles.textoBotaoGold}>ENTRAR NO INSTITUTO</Text>
-            </TouchableOpacity>
+              <TouchableOpacity style={{ backgroundColor: '#d4af37', padding: 14, borderRadius: 8, alignItems: 'center', marginTop: 10 }} onPress={realizarLogin}>
+                <Text style={{ color: '#000', fontWeight: 'bold', fontSize: 15 }}>ENTRAR NO INSTITUTO</Text>
+              </TouchableOpacity>
+            </View>
           </View>
-        </View>
-      </SafeAreaView>
+        </SafeAreaView>
+      </ImageBackground>
     );
   }
 
-  // --- RENDERIZAÇÃO DAS LISTAS COM FLATLIST ---
-  const renderItemRuna = ({ item }) => (
-    <View style={styles.cardItem}>
-      <Text style={styles.itemTitulo}>{item.nome}</Text>
-      <Text style={styles.itemTag}>Tipo: {item.tipo}</Text>
-      <Text style={styles.itemDesc}>{item.desc}</Text>
-    </View>
-  );
+  
+  function renderItemRuna({ item }) {
+    return (
+      <View style={styles.cardItem}>
+        <Text style={styles.itemTitulo}>{item.nome}</Text>
+        <Text style={styles.itemTag}>Tipo: {item.tipo}</Text>
+        <Text style={styles.itemDesc}>{item.desc}</Text>
+      </View>
+    );
+  }
 
   const renderItemPersonagem = ({ item }) => (
     <View style={styles.cardItemRow}>
@@ -132,7 +146,7 @@ export default function App() {
     </View>
   );
 
-  // Filtro de buscas
+ 
   const runasFiltradas = RUNAS.filter(r => r.nome.toLowerCase().includes(busca.toLowerCase()));
   const persFiltrados = PERSONAGENS.filter(p => p.nome.toLowerCase().includes(busca.toLowerCase()));
   const instFiltrados = INSTITUTOS.filter(i => i.nome.toLowerCase().includes(busca.toLowerCase()));
@@ -214,7 +228,7 @@ export default function App() {
   );
 }
 
-// --- ESTILOS DO PROJETO (Cores: Preto Obsidiana, Dourado, Azul Seráfico, Branco) ---
+
 const styles = StyleSheet.create({
   containerLogin: {
     flex: 1,
