@@ -1,15 +1,21 @@
+
 import { initializeApp, getApps, getApp } from 'firebase/app';
+import { getAuth } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
 
-// Firebase Console > Configurações do projeto > Seus apps > Web
-export const firebaseConfig = {
-  apiKey: 'COLOQUE_SUA_API_KEY',
-  authDomain: 'COLOQUE_SEU_AUTH_DOMAIN',
-  projectId: 'COLOQUE_SEU_PROJECT_ID',
-  storageBucket: 'COLOQUE_SEU_STORAGE_BUCKET',
-  messagingSenderId: 'COLOQUE_SEU_MESSAGING_SENDER_ID',
-  appId: 'COLOQUE_SEU_APP_ID',
+const firebaseConfig = {
+  apiKey: "AIzaSyAkkekCWFcwRWS-BtZqioSRO4YKFyGnoek",
+  authDomain: "bimestre-539b1.firebaseapp.com",
+  projectId: "bimestre-539b1",
+  storageBucket: "bimestre-539b1.firebasestorage.app",
+  messagingSenderId: "541919098896",
+  appId: "1:541919098896:web:3ff1951d1519b380a2b295"
 };
-export const firebaseReady = !Object.values(firebaseConfig).some(v => String(v).startsWith('COLOQUE_'));
-const app = firebaseReady ? (getApps().length ? getApp() : initializeApp(firebaseConfig)) : null;
-export const db = app ? getFirestore(app) : null;
+
+const app = getApps().length === 0
+  ? initializeApp(firebaseConfig)
+  : getApp();
+
+export const auth = getAuth(app);
+export const db = getFirestore(app);
+

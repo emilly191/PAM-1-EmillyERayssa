@@ -3,19 +3,18 @@ import { initializeApp, getApps, getApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
 
-// Cole aqui o firebaseConfig que você acabou de enviar
 const firebaseConfig = {
-    apiKey: "AIzaSyAkkekCWFcwRWS-BtZqioSRO4YKFyGnoek",
-  authDomain: "bimestre-539b1.firebaseapp.com",
-  projectId: "bimestre-539b1",
-  storageBucket: "bimestre-539b1.firebasestorage.app",
-  messagingSenderId: "541919098896",
-  appId: "1:541919098896:web:f261d6b8d1622b87a2b295"
+  apiKey: "SUA_API_KEY",
+  authDomain: "SEU_AUTH_DOMAIN",
+  projectId: "SEU_PROJECT_ID",
+  storageBucket: "SEU_STORAGE_BUCKET",
+  messagingSenderId: "SEU_MESSAGING_SENDER_ID",
+  appId: "SEU_APP_ID"
 };
 
-const app = getApps().length
-  ? getApp()
-  : initializeApp(firebaseConfig);
+const app = getApps().length === 0
+  ? initializeApp(firebaseConfig)
+  : getApp();
 
 export const auth = getAuth(app);
 export const db = getFirestore(app);
