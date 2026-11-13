@@ -2,11 +2,11 @@
 import React, { useState } from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
-import Login from './screens/Login';
-import Home from './screens/Home';
-import Runas from './screens/Runas';
-import Personagens from './screens/Personagens';
-import Institutos from './screens/Institutos';
+import Login from '../screens/Login';
+import Home from '../screens/Home';
+import Runas from '../screens/Runas';
+import Personagens from '../screens/Personagens';
+import Institutos from '../screens/Institutos';
 
 const Stack = createNativeStackNavigator();
 
